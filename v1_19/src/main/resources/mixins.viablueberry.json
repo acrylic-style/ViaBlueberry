@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "net.blueberrymcmods.viablueberry.v1_19.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8.5",
+  "client": [
+    "pipeline.client.MixinConnection",
+    "pipeline.client.MixinConnectionChInit",
+    "gui.client.MixinServerStatusPingerListener",
+    "gui.client.MixinServerData",
+    "gui.client.MixinServerSelectionListEntry",
+    "gui.client.MixinJoinMultiplayerScreen",
+    "debug.client.MixinConnectionAccessor",
+    "debug.client.MixinDebugHud"
+  ],
+  "mixins": [
+    "pipeline.MixinConnection",
+    "pipeline.MixinServerConnectionListener"
+  ]
+}

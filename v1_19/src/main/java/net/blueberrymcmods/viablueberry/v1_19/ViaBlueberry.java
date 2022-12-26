@@ -2,6 +2,7 @@ package net.blueberrymcmods.viablueberry.v1_19;
 
 import com.google.common.collect.Range;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -11,17 +12,22 @@ import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import io.netty.channel.DefaultEventLoop;
 import io.netty.channel.EventLoop;
+import net.blueberrymc.client.commands.ClientCommandManager;
 import net.blueberrymc.common.Blueberry;
 import net.blueberrymc.common.bml.BlueberryMod;
+import net.blueberrymc.common.bml.event.EventHandler;
+import net.blueberrymc.common.event.command.CommandRegistrationEvent;
+import net.blueberrymc.common.util.VoidSafeExecutor;
 import net.blueberrymcmods.viablueberry.common.config.VBConfig;
 import net.blueberrymcmods.viablueberry.common.platform.BlueberryInjector;
 import net.blueberrymcmods.viablueberry.common.protocol.HostnameParserProtocol;
 import net.blueberrymcmods.viablueberry.common.util.JLoggerToLog4j;
 import net.blueberrymcmods.viablueberry.v1_19.commands.VRCommandHandler;
 import net.blueberrymcmods.viablueberry.v1_19.platform.VBLoader;
-import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.concurrent.CompletableFuture;
@@ -49,7 +55,7 @@ public class ViaBlueberry extends BlueberryMod {
         instance = this;
     }
 
-    public static <S extends CommandSource> @NotNull LiteralArgumentBuilder<S> command(@NotNull String commandName) {
+    public static <S extends CommandSourceStack> @NotNull LiteralArgumentBuilder<S> command(@NotNull String commandName) {
         return LiteralArgumentBuilder.<S>literal(commandName)
                 .then(
                         RequiredArgumentBuilder
@@ -62,6 +68,8 @@ public class ViaBlueberry extends BlueberryMod {
 
     @Override
     public void onLoad() {
+        Blueberry.getEventManager().registerEvents(this, this);
+
         BlueberryPlatform platform = new BlueberryPlatform();
 
         Via.init(ViaManagerImpl.builder()
@@ -83,14 +91,31 @@ public class ViaBlueberry extends BlueberryMod {
 
         //BlueberryLoader.getInstance().getEntrypoints("viablueberry:via_api_initialized", Runnable.class).forEach(Runnable::run);
 
-        registerCommands();
+        registerCommands(null);
 
         config = new VBConfig(new File(Blueberry.getConfigDir(), "ViaBlueberry/viablueberry.yml"));
 
         INIT_FUTURE.complete(null);
     }
 
-    private void registerCommands() {
-        //ClientCommandManager.register("viaversion", dispatcher -> dispatcher.register()));
+    @EventHandler
+    public void onCommandRegistration(CommandRegistrationEvent e) {
+        registerCommands(e.getDispatcher());
+    }
+
+    private void registerCommands(@Nullable CommandDispatcher<CommandSourceStack> dispatcher) {
+        if (dispatcher != null) {
+            dispatcher.register(command("viaversion"));
+            dispatcher.register(command("viaver"));
+            dispatcher.register(command("vvblueberry"));
+        }
+        Blueberry.safeRunOnClient(() -> new VoidSafeExecutor() {
+            @Override
+            public void execute() {
+                ClientCommandManager.register("viaversion", dispatcher -> dispatcher.register(command("viaversion")));
+                ClientCommandManager.register("viaver", dispatcher -> dispatcher.register(command("viaver")));
+                ClientCommandManager.register("vvblueberry", dispatcher -> dispatcher.register(command("vvblueberry")));
+            }
+        });
     }
 }

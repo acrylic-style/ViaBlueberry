@@ -6,7 +6,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.viaversion.viaversion.commands.ViaCommandHandler;
 import net.blueberrymcmods.viablueberry.common.commands.subs.LeakDetectSubCommand;
-import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -19,20 +19,20 @@ public class VRCommandHandler extends ViaCommandHandler {
         }
     }
 
-    public int execute(CommandContext<? extends CommandSource> ctx) {
+    public int execute(CommandContext<? extends CommandSourceStack> ctx) {
         String[] args = new String[0];
         try {
             args = StringArgumentType.getString(ctx, "args").split(" ");
         } catch (IllegalArgumentException ignored) {
         }
         onCommand(
-                new NMSCommandSource(ctx.getSource()),
+                new NMSCommandSource(ctx.getSource().getEntity()),
                 args
         );
         return 1;
     }
 
-    public CompletableFuture<Suggestions> suggestion(CommandContext<? extends CommandSource> ctx, SuggestionsBuilder builder) {
+    public CompletableFuture<Suggestions> suggestion(CommandContext<? extends CommandSourceStack> ctx, SuggestionsBuilder builder) {
         String[] args;
         try {
             args = StringArgumentType.getString(ctx, "args").split(" ", -1);
@@ -42,7 +42,7 @@ public class VRCommandHandler extends ViaCommandHandler {
         String[] pref = args.clone();
         pref[pref.length - 1] = "";
         String prefix = String.join(" ", pref);
-        onTabComplete(new NMSCommandSource(ctx.getSource()), args)
+        onTabComplete(new NMSCommandSource(ctx.getSource().getEntity()), args)
                 .stream()
                 .map(it -> {
                     SuggestionsBuilder b = new SuggestionsBuilder(builder.getInput(), prefix.length() + builder.getStart());

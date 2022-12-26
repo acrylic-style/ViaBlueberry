@@ -19,6 +19,9 @@ public class NMSCommandSource implements ViaCommandSender {
 
     @Override
     public boolean hasPermission(String permission) {
+        if (source.getClass().getTypeName().equals("net.minecraft.client.player.LocalPlayer")) {
+            return true;
+        }
         if (source instanceof CommandSourceStack commandSourceStack) {
             return commandSourceStack.hasPermission(3);
         } else {

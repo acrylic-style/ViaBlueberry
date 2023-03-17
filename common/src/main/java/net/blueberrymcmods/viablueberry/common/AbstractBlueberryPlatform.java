@@ -91,6 +91,15 @@ public abstract class AbstractBlueberryPlatform implements ViaPlatform<UUID> {
         );
     }
 
+    @Override
+    public FutureTaskId runRepeatingAsync(Runnable runnable, long ticks) {
+        // ViaVersion seems to not need to run repeating tasks on main thread
+        return new FutureTaskId(eventLoop()
+                .scheduleAtFixedRate(() -> runSync(runnable), 0, ticks * 50, TimeUnit.MILLISECONDS)
+                .addListener(errorLogger())
+        );
+    }
+
     protected <T extends Future<?>> GenericFutureListener<T> errorLogger() {
         return future -> {
             if (!future.isCancelled() && future.cause() != null) {

@@ -79,7 +79,8 @@ public class ViaBlueberry extends BlueberryMod {
 
         platform.init();
 
-        ((ViaManagerImpl) Via.getManager()).init();
+        ViaManagerImpl manager = ((ViaManagerImpl) Via.getManager());
+        manager.init();
 
         Via.getManager().getProtocolManager().registerBaseProtocol(HostnameParserProtocol.INSTANCE, Range.lessThan(Integer.MIN_VALUE));
         ProtocolVersion.register(-2, "AUTO");
@@ -91,6 +92,11 @@ public class ViaBlueberry extends BlueberryMod {
         config = new VBConfig(new File(Blueberry.getConfigDir(), "ViaBlueberry/viablueberry.yml"));
 
         INIT_FUTURE.complete(null);
+    }
+
+    @Override
+    public void onPreInit() {
+        ((ViaManagerImpl) Via.getManager()).onServerLoaded();
     }
 
     @EventHandler

@@ -54,8 +54,8 @@ public class ProtocolAutoDetector {
                     ChannelFuture ch = new Bootstrap()
                             .group(Connection.NETWORK_WORKER_GROUP.get())
                             .channel(NioSocketChannel.class)
-                            .handler(new ChannelInitializer<Channel>() {
-                                protected void initChannel(Channel channel) {
+                            .handler(new ChannelInitializer<>() {
+                                protected void initChannel(@NotNull Channel channel) {
                                     try {
                                         channel.config().setOption(ChannelOption.TCP_NODELAY, true);
                                         channel.config().setOption(ChannelOption.IP_TOS, 0x18); // Stolen from Velocity, low delay, high reliability
@@ -85,11 +85,11 @@ public class ProtocolAutoDetector {
                                     }
 
                                     @Override
-                                    public void handleStatusResponse(ClientboundStatusResponsePacket packet) {
-                                        ServerStatus meta = packet.getStatus();
+                                    public void handleStatusResponse(@NotNull ClientboundStatusResponsePacket packet) {
+                                        ServerStatus meta = packet.status();
                                         ServerStatus.Version version;
-                                        if (meta != null && (version = meta.getVersion()) != null) {
-                                            ProtocolVersion ver = ProtocolVersion.getProtocol(version.getProtocol());
+                                        if ((version = meta.version().orElse(null)) != null) {
+                                            ProtocolVersion ver = ProtocolVersion.getProtocol(version.protocol());
                                             future.complete(ver);
                                             ViaBlueberry.JLOGGER.info("Auto-detected " + ver + " for " + address);
                                         } else {
@@ -99,18 +99,18 @@ public class ProtocolAutoDetector {
                                     }
 
                                     @Override
-                                    public void handlePongResponse(ClientboundPongResponsePacket packet) {
+                                    public void handlePongResponse(@NotNull ClientboundPongResponsePacket packet) {
                                         clientConnection.disconnect(Component.literal("Pong not requested!"));
                                     }
 
                                     @Override
-                                    public void onDisconnect(Component reason) {
+                                    public void onDisconnect(@NotNull Component reason) {
                                         future.completeExceptionally(new IllegalStateException(reason.getString()));
                                     }
 
                                     @Override
-                                    public Connection getConnection() {
-                                        return clientConnection;
+                                    public boolean isAcceptingMessages() {
+                                        return clientConnection.isConnected();
                                     }
                                 });
 

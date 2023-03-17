@@ -8,7 +8,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.viaversion.viaversion.ViaManagerImpl;
 import com.viaversion.viaversion.api.Via;
-import com.viaversion.viaversion.api.data.MappingDataLoader;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import io.netty.channel.DefaultEventLoop;
 import io.netty.channel.EventLoop;
@@ -80,10 +79,6 @@ public class ViaBlueberry extends BlueberryMod {
 
         platform.init();
 
-        if (Blueberry.getModLoader().getModById("viabackwards") != null) {
-            MappingDataLoader.enableMappingsCache();
-        }
-
         ((ViaManagerImpl) Via.getManager()).init();
 
         Via.getManager().getProtocolManager().registerBaseProtocol(HostnameParserProtocol.INSTANCE, Range.lessThan(Integer.MIN_VALUE));
@@ -105,15 +100,15 @@ public class ViaBlueberry extends BlueberryMod {
 
     private void registerCommands(@Nullable CommandDispatcher<CommandSourceStack> dispatcher) {
         if (dispatcher != null) {
-            dispatcher.register(command("viaversion"));
-            dispatcher.register(command("viaver"));
+            //dispatcher.register(command("viaversion"));
+            //dispatcher.register(command("viaver"));
             dispatcher.register(command("vvblueberry"));
         }
         Blueberry.safeRunOnClient(() -> new VoidSafeExecutor() {
             @Override
             public void execute() {
-                ClientCommandManager.register("viaversion", dispatcher -> dispatcher.register(command("viaversion")));
-                ClientCommandManager.register("viaver", dispatcher -> dispatcher.register(command("viaver")));
+                //ClientCommandManager.register("viaversion", dispatcher -> dispatcher.register(command("viaversion")));
+                //ClientCommandManager.register("viaver", dispatcher -> dispatcher.register(command("viaver")));
                 ClientCommandManager.register("vvblueberry", dispatcher -> dispatcher.register(command("vvblueberry")));
             }
         });

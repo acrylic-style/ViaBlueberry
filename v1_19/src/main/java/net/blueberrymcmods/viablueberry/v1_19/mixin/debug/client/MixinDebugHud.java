@@ -28,7 +28,7 @@ public class MixinDebugHud {
             if (protocol != null) {
                 ProtocolVersion serverVer = ProtocolVersion.getProtocol(protocol.getServerProtocolVersion());
                 ProtocolVersion clientVer = ProtocolVersion.getProtocol(protocol.getProtocolVersion());
-                line += " / C: " + clientVer + " S: " + serverVer + " A: " + protocol.getUser().isActive();
+                line += " / C: " + clientVer + " S: " + serverVer;
             }
         }
         info.getReturnValue().add(line);

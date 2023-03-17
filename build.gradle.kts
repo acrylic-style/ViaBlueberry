@@ -29,7 +29,7 @@ allprojects {
     }
 
     dependencies {
-        implementation("com.viaversion:viaversion:4.5.0") { isTransitive = false }
+        implementation("com.viaversion:viaversion:4.6.1") { isTransitive = false }
     }
 
     tasks {

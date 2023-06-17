@@ -5,8 +5,8 @@ plugins {
 }
 
 blueberry {
-    minecraftVersion.set("1.19.4")
-    apiVersion.set("1.8.0-SNAPSHOT")
+    minecraftVersion.set("1.20.1")
+    apiVersion.set("2.0.0-SNAPSHOT")
 }
 
 dependencies {

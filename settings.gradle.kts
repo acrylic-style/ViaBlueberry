@@ -9,5 +9,6 @@ pluginManagement {
     }
 }
 
+include("v1_20")
 include("v1_19")
 include("common")
